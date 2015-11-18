@@ -1,0 +1,25 @@
+{% extends 'layouts/main.html' %}
+{% block title %}{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <h1>Simple, event tracking and alerts for webapps.</h1>
+  <h3>(so that you know when things are broken.)</h3>
+</div>
+<p class="lead">Easily visualize your app's <code>Events</code>, and get emergency alerts when <code>Things</code> appear unusual.</p>
+
+<pre>
+$ pip install pulseapp
+$ python
+>>> from pulseapp import Pulse
+>>> pulse = Pulse('API_KEY')
+>>> pulse.event('I made a sandwich', 'ham & cheese')
+>>> pulse.event('I sent an email', 'invitation')
+>>> pulse.event('attempted website login', 'wrong password')
+</pre>
+
+<p>Tiny bits of code let you visually understand what's happening inside your app.</p>
+
+<p><a href="{{ url_for('demo') }}" class="btn btn-lg btn-primary">Log into a demo account with 1 click &rarr;</a></p>
+
+{% endblock %}

@@ -1,0 +1,10 @@
+{% extends 'layouts/main.html' %}
+{% block title %}{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <h1>go confirm ur email bro.</h1>
+  <p>Didn't get the email? <a href="{{ url_for('resend_confirmation') }}">Resend</a>.</p>
+</div>
+
+{% endblock %}

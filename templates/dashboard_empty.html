@@ -1,0 +1,33 @@
+{% extends 'layouts/main.html' %}
+{% block title %}{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <h2>Using Pulse is easy.</h2>
+</div>
+
+<h3>Install with pip</h3>
+<p>Simply run the code below in a terminal to install pulse. You probably want to run this in a virtualenv.</p>
+
+<pre>
+$ pip install pulseapp
+</pre>
+
+<h3>Test it out</h3>
+<p>Run python and let's try pulse out.</p>
+<pre>
+$ python
+>>> from pulseapp import Pulse
+>>> pulse = Pulse('{{ mykey }}') # This is your api key, {{ current_user.email }}
+>>> pulse.event('I made a sandwich', 'ham & cheese')
+>>> pulse.event('I sent an email', 'invitation')
+>>> pulse.event('attempted website login', 'wrong password')
+</pre>
+
+<h3>That's it!</h3>
+<p>Once you've run pulse.event() at least once, refresh this page to view your dashboard.</p>
+
+{% endblock %}
+
+{% block page_js %}
+{% endblock %}

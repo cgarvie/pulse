@@ -1,0 +1,258 @@
+{% extends 'layouts/main.html' %}
+{% block title %}{% endblock %}
+{% block content %}
+
+<!--
+<div class="page-header">
+  <h1>Your things</h1>
+</div>
+-->
+<div class="input-group" id="controls">
+  <span class="input-group-addon">Show the past</span>
+  <input type="text" class="form-control" id="graphint" value="12">
+  <div class="input-group-btn">
+    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="selected-item">hours</span> <span class="caret"></span></button>
+    <ul class="dropdown-menu">
+            <li><a href="#" data-value="m">minutes</a></li>
+            <li><a href="#" data-value="h">hours</a></li>
+            <li><a href="#" data-value="d">days</a></li>
+    </ul>
+    <input id="graphlen" type="hidden" value="h">
+  </div>
+  <span class="input-group-addon">with</span>
+  <input type="text" class="form-control" id="periodint" value="15" />
+  <div class="input-group-btn">
+    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="selected-item">minute</span> <span class="caret"></span></button>
+    <ul class="dropdown-menu">
+            <li><a href="#" data-value="m">minute</a></li>
+            <li><a href="#" data-value="h">hour</a></li>
+    </ul>
+    <input id="periodlen" type="hidden" value="m">
+  </div>
+  <span class="input-group-addon">intervals for</span>
+  <div class="input-group-btn">
+    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown"><span class="selected-item">{{ things[0].name }}</span> <span class="caret"></span></button>
+    <ul class="dropdown-menu">
+        {% for thing in things %}
+            <li><a href="#" data-value="{{ thing.id }}">{{ thing.name }}</a></li>
+        {% endfor %}
+    </ul>
+    <input id="tid" type="hidden" value="1">
+  </div>
+  <span class="input-group-addon">events</span>
+</div>
+
+
+
+
+{% for thing in things %}
+  name
+  {{ thing.name }}
+{% endfor %}
+
+  <div id="container" style="width:100%; height:400px;"></div>
+  <div id="pie_container" style="width:100%; height:400px;"></div>
+
+
+{% endblock %}
+
+{% block page_js %}
+<script type="text/javascript">
+
+
+
+
+function graph_data(tid, graphlen, periodlen) {
+
+  var response = $.get('{{ url_for('graph_data') }}', {'thing': tid, 'graphlen': graphlen, 'periodlen': periodlen});
+  response.done(function(jsondata) {
+    obj = jsondata; // parsing is done automatically by jQuery
+
+
+      d = [];
+      for (var s in obj) {
+
+        a = {};
+        a['name'] = s;
+        a['data'] = [];
+
+        for (var p in obj[s]) {
+              //a['data'].push([ new Date(p*1000), obj[s][p] ]);
+              a['data'].push( [ p*1000, obj[s][p] ] );
+              }
+
+        d.push(a);
+          }
+
+        chart_data = {
+                      credits: { enabled: false },
+                      chart: {
+                          type: 'spline'
+                      },
+                      title: {
+                          text: '{{ chart }}'
+                      },
+                      xAxis: {
+                        //tickInterval: 1
+
+
+                        type: 'datetime',
+                          dateTimeLabelFormats: { // don't display the dummy year
+                              month: '%e. %b',
+                              year: '%b'
+                          },
+
+                      },
+                      yAxis: {
+                          title: {
+                              text: ''
+                          }
+                      },
+                      series: d
+                    };
+
+        console.log(chart_data);
+        console.log(d);
+        $('#container').highcharts(chart_data);
+
+});
+
+}
+
+function pie_data(tid, graphlen) {
+
+  var response = $.get('{{ url_for('pie_data') }}', {'thing': tid, 'graphlen': graphlen});
+  response.done(function(jsondata) {
+    obj = jsondata; // parsing is done automatically by jQuery
+
+      d = [];
+      for (var s in obj) {
+        a = { 'name':  s,
+              'y':     obj[s] };
+        d.push(a);
+        }
+
+        chart_data = {
+                      credits: { enabled: false },
+                      chart: {
+                          plotBackgroundColor: null,
+                          plotBorderWidth: null,
+                          plotShadow: false,
+                          type: 'pie'
+                      },
+                      title: {
+                          text: ''
+                      },
+                      tooltip: {
+                          pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+                      },
+                      plotOptions: {
+                          pie: {
+                              allowPointSelect: true,
+                              cursor: 'pointer',
+                              dataLabels: {
+                                  enabled: true,
+                                  format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+                                  style: {
+                                      color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                                  }
+                              }
+                          }
+                      },
+                      series: [{
+                          name: "Values",
+                          colorByPoint: true,
+                          data: d
+                    }]
+                  }
+
+        console.log(chart_data);
+        console.log(d);
+        $('#pie_container').highcharts(chart_data);
+
+});
+
+}
+
+
+
+$(function () {
+    $('#container').highcharts({
+        chart: {
+
+        },
+        title: {
+            text: ''
+        },
+
+
+        series: [{
+            name: "Brands",
+            colorByPoint: true,
+            data: [{
+                name: "Microsoft Internet Explorer",
+                y: 6
+            }, {
+                name: "Chrome",
+                y: 5,
+            }, {
+                name: "Firefox",
+                y: 4
+            }]
+        }]
+    });
+});
+
+
+$(function () {
+
+  function update_graph() {
+
+      graphint = $('#graphint').val();
+      periodint = $('#periodint').val();
+      tid = $('#tid').val();
+
+      graphint = parseInt(graphint);
+      periodint = parseInt(periodint);
+      tid = parseInt(tid);
+
+      if ($('#graphlen').val() == 'm') {
+        //graphint = graphint;
+      } else if ($('#graphlen').val() == 'h') {
+        graphint = graphint * 60;
+      } else if ($('#graphlen').val() == 'd') {
+        graphint = graphint * 60 * 24;
+      }
+
+      if ($('#periodlen').val() == 'm') {
+        //periodlen = periodlen;
+      } else if ($('#periodlen').val() == 'h') {
+        periodint = periodint * 60;
+      }
+
+      graph_data(tid, graphint, periodint);
+      pie_data(tid, graphint);
+
+      }
+
+  $('.dropdown-menu li').click(function(e){
+      e.preventDefault();
+      $(this).parent().parent().find('input[type="hidden"]').val( $(this).find('a').data('value') );
+      //console.log( $(this).parent().parent().find('input[type="hidden"]').val() );
+      $(this).parent().parent().find('span.selected-item').text($(this).text());
+      update_graph();
+  });
+
+  $('#controls > input').change(
+    update_graph()
+  );
+  $('#controls > input').blur(
+    update_graph()
+  );
+
+  //graph_data(1,12*60,15);
+  update_graph();
+
+});
+</script>
+{% endblock %}

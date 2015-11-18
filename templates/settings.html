@@ -1,0 +1,55 @@
+{% extends 'layouts/main.html' %}
+{% block title %}{% endblock %}
+{% block content %}
+<style>
+ul#api-keys { list-style-type: none; margin:0 0; padding:0 0; }
+li.api-key { padding:0.5em 0; }
+li.api-key span { display:inline-block; width:100px; }
+</style>
+
+<div class="page-header">
+  <h1>Settings</h1>
+</div>
+
+<p><a class="new-key btn btn-primary"><i class="fa fa-plus-circle"></i> generate new api key</a></p>
+
+<ul id="api-keys">
+{% for key in api_keys %}
+  <li class="api-key" data-key="{{ key.id }}"><span>{{ key.key }}</span><a class="btn btn-danger"><i class="fa fa-trash-o"></i> delete</a></li>
+{% endfor %}
+</ul>
+
+
+
+{% endblock %}
+
+{% block page_js %}
+<script type="text/javascript">
+$(function () {
+
+  function init_btns() {
+    $('li.api-key > a.btn-danger').click(function(e) {
+      //e.preventDefault();
+      li = $(this).parent('li.api-key');
+      k = li.data('key');
+      $.get('{{ url_for('delete_key') }}', {'key': k});
+      li.fadeOut(200, function() {
+        li.remove();
+      });
+    });
+  }
+
+    $('a.new-key').click(function(e) {
+      //e.preventDefault();
+      var response = $.get('{{ url_for('new_key') }}');
+      response.done(function(jsondata) {
+        key = jsondata; // parsing is done automatically by jQuery
+        $('ul#api-keys').append('<li class="api-key" data-key="'+ key.id +'"><span>'+ key.key +'</span><a class="btn btn-danger"><i class="fa fa-trash-o"></i> delete</a></li>');
+        init_btns();
+      });
+    });
+
+    init_btns();
+});
+</script>
+{% endblock %}

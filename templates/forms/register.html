@@ -1,0 +1,25 @@
+{% extends 'layouts/form.html' %}
+{% block title %}- Register{% endblock %}
+{% block content %}
+
+  <form method="post" class="form">
+    <h3 class="form-heading">Register</h3>
+    <div class="alert alert-danger {% if not form.errors %} hidden {% endif %}">
+        <ul class="errors">
+            {% for field_name, field_errors in form.errors|dictsort if field_errors %}
+                {% for error in field_errors %}
+                    <li>{{ form[field_name].label }}: {{ error }}</li>
+                {% endfor %}
+            {% endfor %}
+        </ul>
+    </div>
+    {{ form.csrf_token }}
+    {{ form.email(class_ = 'form-control', placeholder = form.email.label.text, required = true) }}
+    {{ form.password(class_ = 'form-control', placeholder = form.password.label.text, required = true) }}
+    {{ form.confirm(class_ = 'form-control last-input', placeholder = form.confirm.label.text, required = true) }}
+
+    <p><input type="submit" value="Register" class="btn btn-primary btn-lg btn-block" ></p>
+
+    <p class="pull-left">Already have an account? <a href="{{ url_for('login') }}">Login</a></p>
+  </form>
+{% endblock %}
